@@ -31,16 +31,11 @@ enum ApplicationStatus {
   cancelled
 }
 
-enum LogisticsType {
-  outbound
-  return
-}
-
-enum LogisticsStatus {
-  created
-  shipped
-  in_transit
-  delivered
+enum SampleStatus {
+  available
+  borrowed
+  maintenance
+  retired
 }
 
 enum DepositStatus {
@@ -51,16 +46,24 @@ enum DepositStatus {
   deducted
 }
 
+enum LogisticsType {
+  outbound
+  return
+}
+
+enum LogisticsStatus {
+  created
+  shipped
+  in_transit
+  delivered
+  returned
+  failed
+}
+
 enum TestResult {
   pass
   fail
   partial
-}
-
-enum SampleCondition {
-  good
-  damaged
-  missing_parts
 }
 
 enum ContractStatus {
@@ -70,122 +73,121 @@ enum ContractStatus {
 }
 
 model User {
-  id            String        @id @default(uuid())
-  email         String        @unique
-  name          String
-  role          UserRole
-  company       String?
-  phone         String?
-  passwordHash  String
-  createdAt     DateTime      @default(now())
-  applications  Application[] @relation("CustomerApplications")
-  salesReviews  Application[] @relation("SalesReviews")
-  legalReviews  Application[] @relation("LegalReviews")
-  inspections   ReturnInspection[]
+  id              String              @id @default(uuid())
+  email           String              @unique
+  name            String
+  role            UserRole
+  company         String?
+  phone           String?
+  passwordHash    String
+  createdAt       DateTime            @default(now())
+  applications    Application[]       @relation("CustomerApplications")
+  salesReviews    Application[]       @relation("SalesReviews")
+  legalReviews    Application[]       @relation("LegalReviews")
+  inspections     ReturnInspection[]
   contractReviews Contract[]
 }
 
 model Sample {
-  id           String        @id @default(uuid())
-  name         String
-  model        String
-  serialNumber String        @unique
-  description  String?
-  value        Decimal       @db.Decimal(12, 2)
-  depositAmount Decimal      @db.Decimal(12, 2)
-  status       String        @default("available")
-  createdAt    DateTime      @default(now())
-  applications Application[]
+  id            String              @id @default(uuid())
+  name          String
+  model         String
+  serialNumber  String              @unique
+  description   String?
+  value         Decimal             @db.Decimal(10, 2)
+  depositAmount Decimal             @db.Decimal(10, 2)
+  status        SampleStatus        @default(available)
+  createdAt     DateTime            @default(now())
+  applications  Application[]
 }
 
 model Application {
-  id                String              @id @default(uuid())
-  applicationNo     String              @unique
-  customerId        String
-  sampleId          String
-  targetCountry     String
-  testPurpose       String              @db.Text
-  expectedReturnDate DateTime           @db.Date
-  actualReturnDate  DateTime?           @db.Date
-  status            ApplicationStatus   @default(draft)
-  salesReviewComment String?            @db.Text
-  legalReviewComment String?            @db.Text
-  salesReviewerId   String?
-  legalReviewerId   String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  customer          User                @relation("CustomerApplications", fields: [customerId], references: [id])
-  sample            Sample              @relation(fields: [sampleId], references: [id])
-  salesReviewer     User?               @relation("SalesReviews", fields: [salesReviewerId], references: [id])
-  legalReviewer     User?               @relation("LegalReviews", fields: [legalReviewerId], references: [id])
-  deposit           Deposit?
-  logistics         Logistics[]
-  feedback          Feedback?
-  returnInspection  ReturnInspection?
-  contract          Contract?
+  id                 String              @id @default(uuid())
+  applicationNo      String              @unique
+  customerId         String
+  sampleId           String
+  targetCountry      String
+  testPurpose        String              @db.Text
+  expectedReturnDate DateTime            @db.Date
+  actualReturnDate   DateTime?           @db.Date
+  status             ApplicationStatus   @default(draft)
+  salesReviewComment String?             @db.Text
+  legalReviewComment String?             @db.Text
+  salesReviewerId    String?
+  legalReviewerId    String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  customer           User                @relation("CustomerApplications", fields: [customerId], references: [id])
+  sample             Sample              @relation(fields: [sampleId], references: [id])
+  salesReviewer      User?               @relation("SalesReviews", fields: [salesReviewerId], references: [id])
+  legalReviewer      User?               @relation("LegalReviews", fields: [legalReviewerId], references: [id])
+  deposit            Deposit?
+  logistics          Logistics[]
+  feedback           Feedback?
+  returnInspection   ReturnInspection?
+  contract           Contract?
 
   @@index([customerId])
   @@index([status])
-  @@index([createdAt(sort: Desc)])
 }
 
 model Deposit {
-  id               String         @id @default(uuid())
-  applicationId    String         @unique
-  amount           Decimal        @db.Decimal(12, 2)
-  status           DepositStatus  @default(pending)
-  paidAt           DateTime?
-  refundedAt       DateTime?
-  deductionReason  String?        @db.Text
-  application      Application    @relation(fields: [applicationId], references: [id])
+  id              String          @id @default(uuid())
+  applicationId   String          @unique
+  amount          Decimal         @db.Decimal(10, 2)
+  status          DepositStatus   @default(pending)
+  paidAt          DateTime?
+  refundedAt      DateTime?
+  deductionReason String?         @db.Text
+  application     Application     @relation(fields: [applicationId], references: [id])
 }
 
 model Logistics {
-  id             String          @id @default(uuid())
-  applicationId  String
-  type           LogisticsType
-  courier        String
-  trackingNo     String
-  status         LogisticsStatus @default(created)
-  shippedAt      DateTime?
-  deliveredAt    DateTime?
-  createdAt      DateTime        @default(now())
-  application    Application     @relation(fields: [applicationId], references: [id])
+  id            String            @id @default(uuid())
+  applicationId String
+  type          LogisticsType
+  courier       String
+  trackingNo    String
+  status        LogisticsStatus   @default(created)
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  createdAt     DateTime          @default(now())
+  application   Application       @relation(fields: [applicationId], references: [id])
 
   @@index([applicationId])
   @@index([trackingNo])
 }
 
 model Feedback {
-  id             String     @id @default(uuid())
-  applicationId  String     @unique
-  content        String     @db.Text
-  testResult     TestResult
-  attachments    String?    @db.Text
-  createdAt      DateTime   @default(now())
-  application    Application @relation(fields: [applicationId], references: [id])
+  id            String      @id @default(uuid())
+  applicationId String      @unique
+  content       String      @db.Text
+  testResult    TestResult
+  attachments   String?
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id])
 }
 
 model ReturnInspection {
-  id                 String          @id @default(uuid())
-  applicationId      String          @unique
-  condition          SampleCondition
-  description        String          @db.Text
-  hasDamage          Boolean         @default(false)
-  damageDescription  String?         @db.Text
-  inspectorId        String
-  inspectedAt        DateTime        @default(now())
-  application        Application     @relation(fields: [applicationId], references: [id])
-  inspector          User            @relation(fields: [inspectorId], references: [id])
+  id                String      @id @default(uuid())
+  applicationId     String      @unique
+  condition         String
+  description       String      @db.Text
+  hasDamage         Boolean     @default(false)
+  damageDescription String?     @db.Text
+  inspectorId       String
+  inspectedAt       DateTime    @default(now())
+  application       Application @relation(fields: [applicationId], references: [id])
+  inspector         User        @relation(fields: [inspectorId], references: [id])
 }
 
 model Contract {
-  id               String         @id @default(uuid())
-  applicationId    String         @unique
-  content          String         @db.Text
-  status           ContractStatus @default(pending)
-  signedAt         DateTime?
-  legalReviewerId  String?
-  application      Application    @relation(fields: [applicationId], references: [id])
-  legalReviewer    User?          @relation(fields: [legalReviewerId], references: [id])
+  id              String          @id @default(uuid())
+  applicationId   String          @unique
+  content         String          @db.Text
+  status          ContractStatus  @default(pending)
+  signedAt        DateTime?
+  legalReviewerId String?
+  application     Application     @relation(fields: [applicationId], references: [id])
+  legalReviewer   User?           @relation(fields: [legalReviewerId], references: [id])
 }

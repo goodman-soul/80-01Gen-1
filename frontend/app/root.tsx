@@ -9,10 +9,15 @@ import {
   ScrollRestoration,
   redirect,
 } from '@remix-run/react';
-import stylesheet from '~/styles/tailwind.css';
+import tailwindStylesheet from './styles/tailwind.css?url';
+
+if (typeof process !== 'undefined') {
+  process.env.NO_PROXY = process.env.NO_PROXY ?? 'localhost,127.0.0.1';
+  process.env.no_proxy = process.env.no_proxy ?? 'localhost,127.0.0.1';
+}
 
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: stylesheet },
+  { rel: 'stylesheet', href: tailwindStylesheet },
   ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
 ];
 

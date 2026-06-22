@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, SampleStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -50,7 +50,7 @@ async function main() {
         description: '企业级双频千兆路由器，支持Mesh组网',
         value: 5000,
         depositAmount: 5000,
-        status: 'available',
+        status: SampleStatus.available,
       },
       {
         name: 'IoT 开发板',
@@ -59,7 +59,7 @@ async function main() {
         description: '支持WiFi6/BLE/Zigbee的多协议开发板',
         value: 3200,
         depositAmount: 3200,
-        status: 'available',
+        status: SampleStatus.available,
       },
       {
         name: '5G 测试模组',
@@ -68,7 +68,7 @@ async function main() {
         description: '高通X62芯片的5G工业级模组',
         value: 12000,
         depositAmount: 12000,
-        status: 'available',
+        status: SampleStatus.available,
       },
       {
         name: '边缘计算网关',
@@ -77,7 +77,7 @@ async function main() {
         description: '支持Docker部署的工业边缘网关',
         value: 8500,
         depositAmount: 8500,
-        status: 'available',
+        status: SampleStatus.available,
       },
     ],
     skipDuplicates: true,

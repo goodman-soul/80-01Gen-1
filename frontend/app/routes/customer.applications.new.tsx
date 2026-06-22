@@ -11,7 +11,7 @@ type Step3Data = { step: 3; sampleId: string; targetCountry: string; testPurpose
 type ActionData = Step1Data | Step2Data | Step3Data;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const apiUrl = process.env.API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.API_URL || 'http://127.0.0.1:3001';
   
   const [userRes, samplesRes] = await Promise.all([
     fetch(`${apiUrl}/api/auth/me`, {
@@ -33,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: LoaderFunctionArgs): Promise<TypedResponse<ActionData> | Response> {
-  const apiUrl = process.env.API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.API_URL || 'http://127.0.0.1:3001';
   const formData = await request.formData();
   const step = Number(formData.get('step'));
   const cookie = request.headers.get('Cookie') || '';

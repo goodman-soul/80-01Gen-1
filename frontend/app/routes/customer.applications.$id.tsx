@@ -8,7 +8,7 @@ import { Timeline } from '~/components/Timeline';
 import { Application, User as UserType } from '~/lib/types';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const apiUrl = process.env.API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.API_URL || 'http://127.0.0.1:3001';
   
   const [userRes, appRes] = await Promise.all([
     fetch(`${apiUrl}/api/auth/me`, {
@@ -31,7 +31,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export async function action({ params, request }: ActionFunctionArgs) {
-  const apiUrl = process.env.API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.API_URL || 'http://127.0.0.1:3001';
   const formData = await request.formData();
   const action = formData.get('action') as string;
   const cookie = request.headers.get('Cookie') || '';

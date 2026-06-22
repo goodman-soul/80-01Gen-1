@@ -6,7 +6,7 @@ import { StatusBadge } from '~/components/StatusBadge';
 import { Application } from '~/lib/types';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const apiUrl = process.env.API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.API_URL || 'http://127.0.0.1:3001';
   const { id } = params;
 
   const [userRes, appRes] = await Promise.all([

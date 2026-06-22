@@ -11,7 +11,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const password = formData.get('password') as string;
 
   try {
-    const response = await fetch(`${process.env.API_URL || 'http://localhost:3001'}/api/auth/login`, {
+    const response = await fetch(`${process.env.API_URL || 'http://127.0.0.1:3001'}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

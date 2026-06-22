@@ -3,7 +3,7 @@ import { UserRole } from '~/lib/types';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const response = await fetch(`${process.env.API_URL || 'http://localhost:3001'}/api/auth/me`, {
+    const response = await fetch(`${process.env.API_URL || 'http://127.0.0.1:3001'}/api/auth/me`, {
       headers: {
         Cookie: request.headers.get('Cookie') || '',
       },
